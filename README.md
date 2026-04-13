@@ -1,15 +1,15 @@
 # Fake News Detection using Machine Learning
 
-A comprehensive machine learning project for university that uses Multinomial Naive Bayes with TF-IDF vectorization to classify news articles as fake or real, achieving high accuracy through feature engineering and hyperparameter optimization.
+A machine learning project for university that uses Multinomial Naive Bayes with TF-IDF vectorization to classify news articles as fake or real, achieving ~95% accuracy through feature engineering and hyperparameter optimization.
 
 ## 📊 Project Overview
 
-This project implements a binary classification system to detect fake news articles using natural language processing (NLP) and machine learning techniques. The model analyzes both textual content and metadata features to make predictions.
+This project implements a binary classification system to detect fake news articles using natural language processing (NLP) and machine learning techniques. The model analyzes textual content combined with selected numerical metadata features to make predictions.
 
 ### Key Features
 
 - **TF-IDF Vectorization** for text representation
-- **Feature Engineering** with 8 custom features
+- **Feature Engineering** with 4 selected numerical features (weak predictors dropped after EDA)
 - **Hyperparameter Tuning** using GridSearchCV with 5-fold cross-validation
 - **Comprehensive EDA** with correlation analysis and visualizations
 - **Performance Metrics** including confusion matrix and classification report
@@ -18,9 +18,10 @@ This project implements a binary classification system to detect fake news artic
 
 The model achieves strong performance on the test set:
 
-- **Accuracy:** ~99%
-- **F1-Score:** Optimized through hyperparameter tuning
-- **Best Alpha Parameter:** Determined via GridSearchCV
+- **Accuracy:** ~95%
+- **Precision:** 95% for both classes
+- **Recall:** 96% fake / 95% real
+- **F1-Score:** 96% fake / 95% real
 
 ## 📁 Project Structure
 
@@ -82,8 +83,8 @@ This will:
 
 1. **Data Loading:** Combine Fake.csv and True.csv with appropriate labels
 2. **Missing Value Handling:** Remove rows with null values
-3. **Feature Engineering:** Create 8 custom features
-4. **Normalization:** Scale numerical features using MinMaxScaler/StandardScaler
+3. **Feature Engineering:** Create 8 candidate features, then select the 4 strongest predictors
+4. **Normalization:** Scale selected numerical features using MinMaxScaler
 
 ### Feature Engineering
 
@@ -94,37 +95,50 @@ The model uses the following features:
 - Top 5000 words by TF-IDF score
 
 
-**Numerical Features:**
-1. `text_length` - Word count in article body
-2. `title_length` - Word count in title
-3. `title_exclamations` - Number of '!' in title
-4. `text_exclamations` - Number of '!' in text
-5. `year` - Publication year extracted from date
-6. `text_sentiment` - Sentiment polarity score (-1 to 1)
-7. `title_sentiment` - Title sentiment polarity
-8. `title_text_ratio` - Ratio of title to text length
+**Numerical Features used in model (selected by correlation with label):**
+ 
+| Feature | Correlation with label | Notes |
+|---|---|---|
+| `title_length` | -0.58 | Strong — fake articles have longer titles |
+| `year` | -0.57 | Strong — fake articles cluster in earlier years |
+| `title_exclamations` | -0.25 | Moderate — fake articles use more `!` in titles |
+| `text_exclamations` | -0.23 | Moderate — fake articles use more `!` in text |
+ 
+**Dropped features (weak predictors):**
+ 
+| Feature | Correlation with label | Reason dropped |
+|---|---|---|
+| `text_length` | -0.05 | Near-zero correlation |
+| `text_sentiment` | -0.03 | Near-zero correlation |
+| `title_sentiment` | +0.04 | Near-zero correlation |
+| `title_text_ratio` | -0.12 | Low discriminative power |
+ 
+> Dropping weak features reduces model complexity and avoids noise without sacrificing accuracy.
 
 ### Training Process
 
 1. **Data Split:** 80% training, 20% testing (stratified)
 2. **Cross-Validation:** 5-fold CV on training set
 3. **Scoring Metric:** F1-score (balances precision and recall)
-4. **Optimization:** GridSearchCV tests all alpha combinations
+4. **Optimization:** GridSearchCV tests all alpha values `[0.1, 0.5, 1.0, 1.5, 2.0]`
 5. **Final Model:** Best estimator selected based on CV performance
 
 ## 📈 Exploratory Data Analysis Insights
 
 ### Key Findings
 
-**Correlation Analysis:**
-- Text/title length show moderate correlation with label
-- Sentiment scores reveal differences between fake/real news
-- Exclamation usage patterns differ between categories
-
-**Distribution Analysis:**
-- Balanced dataset (roughly equal fake/real samples)
-- Text length varies significantly between categories
-- Sentiment distributions show distinct patterns
+### Dataset
+ 
+- **Total entries:** 44,898 (no missing values)
+- **Fake (label=0):** 23,481 articles — 52%
+- **Real (label=1):** 21,417 articles — 48%
+- The dataset is slightly imbalanced but still suitable for balanced training.
+ 
+### Key Findings from Correlation Analysis
+ 
+- `title_length` and `year` are the strongest predictors of fake news
+- Fake articles use noticeably more exclamation marks in both title and body
+- Sentiment scores and raw text length have negligible predictive power
 
 ### Visualizations Generated
 
@@ -165,11 +179,11 @@ Actual Fake  TN    FP
 This project demonstrates proficiency in:
 
 1. **Machine Learning Pipeline:** Data loading → preprocessing → training → evaluation
-2. **Feature Engineering:** Creating meaningful features from raw data
+2. **Feature Selection:** Dropping weak predictors based on correlation analysis
 3. **NLP Techniques:** TF-IDF, text preprocessing, sentiment analysis
 4. **Model Optimization:** Hyperparameter tuning with cross-validation
 5. **Data Visualization:** Comprehensive EDA with multiple plot types
-6. **Best Practices:** Code organization, reproducibility (random_state), documentation
+6. **Best Practices:** Code organization, reproducibility (`random_state=42`), documentation
 
 ## 📚 Dataset Information
 
@@ -182,7 +196,3 @@ This project demonstrates proficiency in:
 - `text` - Article body content
 - `subject` - News category
 - `date` - Publication date
-
-## 👤 Contact
-
-**gurowamuki**
