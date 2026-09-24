@@ -1,6 +1,6 @@
 # Fake News Detection using Machine Learning
 
-A machine learning project for university that uses Multinomial Naive Bayes with TF-IDF vectorization to classify news articles as fake or real, achieving ~95% accuracy through feature engineering and hyperparameter optimization.
+A machine learning project that uses Multinomial Naive Bayes with TF-IDF vectorization to classify news articles as fake or real, achieving ~95% accuracy through feature engineering and hyperparameter optimization.
 
 ## 📊 Project Overview
 
